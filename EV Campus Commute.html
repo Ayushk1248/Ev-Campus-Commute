@@ -1,0 +1,425 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>EV Campus Commute — Demo</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700;900&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #071022; --accent: #00d1ff; --accent-2: #00ffa6;
+      --glass: rgba(255,255,255,0.06); --card: rgba(255,255,255,0.04);
+      --muted: rgba(255,255,255,0.7);
+    }
+    * {box-sizing:border-box} html,body{height:100%}
+    body {
+      margin:0; font-family:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;
+      background: linear-gradient(180deg,#030416 0%, #071022 100%);
+      color:#eaf6ff; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; overflow-y:auto;
+    }
+    .nav{position:fixed;top:0;left:0;right:0;height:72px;display:flex;align-items:center;justify-content:space-between;
+      padding:0 28px;backdrop-filter: blur(8px);background:linear-gradient(90deg,rgba(7,16,34,0.45),rgba(7,16,34,0.18));
+      z-index:40;border-bottom:1px solid rgba(255,255,255,0.03);}
+    .brand{display:flex;align-items:center;gap:12px;}
+    .logo{width:44px;height:44px;border-radius:8px;background:linear-gradient(135deg,var(--accent),var(--accent-2));
+      display:flex;align-items:center;justify-content:center;font-weight:900;color:#042232;font-family:'Poppins';
+      box-shadow:0 6px 18px rgba(0,0,0,0.5);}
+    .brand h1{font-size:18px;margin:0;letter-spacing:0.2px}
+    .nav .actions{display:flex;gap:12px;align-items:center}
+    .btn{background:var(--glass);color:var(--muted);padding:8px 14px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);cursor:pointer;font-weight:600;transition:all .18s}
+    .btn:hover{transform:translateY(-3px); box-shadow:0 8px 30px rgba(0,0,0,0.5)}
+    .btn.primary{background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#042232;border:none;padding:10px 18px;}
+    .hero{height:86vh;min-height:520px;display:grid;grid-template-columns:1fr;align-items:center;justify-items:center;position:relative;overflow:hidden;margin-top:72px;}
+    .hero .bg{position:absolute;inset:0;background-size:cover;background-position:center;filter:contrast(0.9) saturate(1.05) brightness(0.55);transform:scale(1.03);}
+    .hero::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(2,6,15,0.45),rgba(2,6,15,0.7) 60%);z-index:1;}
+    .hero .content{position:relative;z-index:3;max-width:1100px;padding:28px;display:flex;flex-direction:column;gap:18px;align-items:flex-start;}
+    .kicker{background:rgba(255,255,255,0.06);padding:8px 12px;border-radius:999px;font-weight:600;font-size:13px;color:#c8f7ff;border:1px solid rgba(255,255,255,0.03)}
+    h2{margin:0;font-family:'Poppins';font-weight:800;font-size:44px;line-height:1.02;letter-spacing:-0.6px;color:#eaffff;text-shadow:0 6px 30px rgba(0,0,0,0.6);}
+    p.lead{margin:0;color:rgba(234,246,255,0.9);font-size:16px;max-width:800px}
+    .hero .controls{display:flex;gap:14px;margin-top:12px}
+    .cta{padding:14px 20px;border-radius:12px;font-weight:700;background:transparent;border:1px solid rgba(255,255,255,0.12);cursor:pointer;color:#dffaff}
+    .cta.explore{background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#042232;box-shadow:0 12px 40px rgba(0,210,255,0.08)}
+    .section{max-width:1200px;margin:40px auto;padding:28px;border-radius:14px;background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));border:1px solid rgba(255,255,255,0.03)}
+    .section h3{font-family:'Poppins';margin:0 0 12px 0}
+    .columns{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;align-items:center}
+    .info-card{background:var(--card);padding:18px;border-radius:12px;border:1px solid rgba(255,255,255,0.03)}
+    .ride-types{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+    .ride-types button{min-width:140px;padding:12px 16px;border-radius:10px;border:none;cursor:pointer;background:rgba(255,255,255,0.03);color:var(--muted);font-weight:600}
+    .ride-types button.active{background:linear-gradient(90deg,rgba(0,209,255,0.12),rgba(0,255,166,0.06));color:#eaffff;box-shadow:0 8px 40px rgba(0,210,255,0.04)}
+    .brand-panel{margin-top:18px;display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap;}
+    .brand-grid{width:540px;background:linear-gradient(180deg,rgba(0,0,0,0.25),rgba(255,255,255,0.02));padding:12px;border-radius:12px;border:1px solid rgba(255,255,255,0.03);display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+    .brand-card{background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));border-radius:10px;padding:8px;display:flex;gap:10px;align-items:center;cursor:pointer;border:1px solid rgba(255,255,255,0.03);transition:transform .12s,box-shadow .12s;}
+    .brand-card:hover{transform:translateY(-6px);box-shadow:0 14px 40px rgba(0,0,0,0.6)}
+    .brand-card img{width:110px;height:70px;object-fit:cover;border-radius:8px;border:1px solid rgba(255,255,255,0.04)}
+    .brand-card .meta{font-weight:700;font-size:14px}
+    .brand-details{flex:1;min-width:320px;background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));padding:18px;border-radius:12px;border:1px solid rgba(255,255,255,0.03);display:flex;flex-direction:column;gap:12px;}
+    .brand-details .big-img{width:100%;height:180px;border-radius:10px;overflow:hidden}
+    .brand-details .big-img img{width:100%;height:100%;object-fit:cover;display:block}
+    .specs{display:flex;gap:10px;flex-wrap:wrap}
+    .spec{background:rgba(255,255,255,0.02);padding:8px 10px;border-radius:8px;font-size:13px}
+    .small{font-size:13px;color:rgba(234,246,255,0.8)}
+    .modal-backdrop, .contact-modal-backdrop {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 200;
+      align-items: center; justify-content: center;
+    }
+    .modal, .how-modal, .contact-modal {
+      background: #fff; color: #042232; padding: 20px; border-radius: 12px; max-width: 500px; box-shadow:0 8px 40px rgba(0,0,0,0.5); animation: fadeIn 0.3s;
+    }
+    .modal{width:420px; background:linear-gradient(180deg,#0b1624,#071022); color:#eaf6ff;}
+    .contact-modal{color:#042232;padding:25px;max-width:600px; width:70%;}
+    .close{float:right;font-size:24px;cursor:pointer}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(-10px);}to{opacity:1;transform:translateY(0);}}
+    .field input,.field select{
+      background:transparent;color:#eaffff;border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:10px;font-size:14px;width:100%;box-sizing:border-box;
+    }
+    .field label.small{font-size:13px;color:var(--accent);margin-bottom:4px;display:inline-block;}
+    .field select{background-color:#0b1624;color:#eaffff;border:1px solid rgba(255,255,255,0.1);appearance:none;background-image:url("data:image/svg+xml;utf8,<svg width='10' height='7' viewBox='0 0 10 7' fill='none' xmlns='http://www.w3.org/2000/svg'><path d='M1 1L5 5L9 1' stroke='%23eaffff' stroke-width='2'/></svg>");background-repeat:no-repeat;background-position:right 10px center;background-size:12px;}
+    select option{background-color:#071022;color:#eaffff;}
+    .toast{position:fixed;right:20px;bottom:20px;padding:12px 18px;border-radius:12px;background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#042232;font-weight:700;box-shadow:0 18px 60px rgba(0,0,0,0.5);display:none;z-index:200}
+    /* Responive: */
+    @media (max-width:980px){
+      .columns{grid-template-columns:1fr}
+      .brand-panel{flex-direction:column}
+      .brand-grid,.brand-details{width:100%}
+      .hero h2{font-size:34px}
+    }
+#profileSticky {
+  position: fixed;
+  top: 12px;
+  right: 20px;
+  display: flex;
+  align-items: center;
+  background: linear-gradient(90deg,#0b1624,#071022);
+  padding: 8px 12px;
+  border-radius: 20px;
+  box-shadow: 0 0 10px rgba(0,255,255,0.2);
+  z-index: 1000;
+}
+
+.profile-icon {
+  font-size: 24px;
+  margin-right: 8px;
+  color: #00d1ff;
+}
+
+.profile-name {
+  font-size: 14px;
+  color: #eaffff;
+  font-weight: 600;
+}
+    /* Footer: */
+    .ev-footer{background:#071022;color:#eaf6ff;padding:40px 20px;border-top:1px solid rgba(255,255,255,0.05);font-size:14px;}
+    .ev-footer-content{max-width:1100px;margin:auto;display:flex;flex-wrap:wrap;gap:30px;justify-content:space-between;}
+    .ev-footer .footer-section{flex:1 1 200px;min-width:180px;}
+    .ev-footer h4{margin-bottom:12px;font-family:'Poppins',sans-serif;font-weight:700;color:var(--accent);}
+    .ev-footer a{color:#eaf6ff;text-decoration:none;transition:color 0.2s;}
+    .ev-footer a:hover{color:var(--accent-2);}
+    .ev-footer ul{list-style:none;padding:0;margin:0;}
+    .ev-footer ul li{margin-bottom:8px;}
+    .ev-footer .socials{display:flex;gap:12px;}
+    .ev-footer .socials li{display:inline;}
+    .ev-footer .copyright{margin-top:20px;font-size:12px;color:rgba(234,246,255,0.6);}
+    /* Contact modal */
+    .contact-modal h2{margin-top:0;font-family:'Poppins';color:#00d1ff;}
+    .contact-modal ul{list-style:none;padding:0;}
+    .contact-modal li{margin-bottom:15px;}
+    .contact-modal p{margin:4px 0 0;font-size:13px;color:#333;}
+    .contact-modal .close{color:#666}
+  </style>
+</head>
+<body>
+<div id="profileSticky" style="display:none;">
+  <span class="profile-icon">👤</span>
+  <span class="profile-name" id="profileName">Welcome, Ayush</span>
+</div>
+<!-- Navigation -->
+<nav class="nav">
+  <div class="brand">
+    <div class="logo">EV</div>
+    <div>
+      <h1>EV Campus Commute</h1>
+      <div style="font-size:12px;color:rgba(234,246,255,0.6)">Clean • Quiet • Smart</div>
+    </div>
+  </div>
+  <div class="actions">
+    <button class="btn" id="exploreQuick">Explore</button>
+    <button class="btn" id="btnLogin">Login</button>
+    <button class="btn primary" id="btnSignup">Sign up</button>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="bg" id="heroBg" style="background-image:url('https://upload.wikimedia.org/wikipedia/commons/e/e3/EV_charging_station_%2852019921156%29.jpg')"></div>
+  <div class="content">
+    <div class="kicker">Campus EV Solutions</div>
+    <h2>Zero Emissions, Maximum Convenience<br><span style="font-weight:600;color:rgba(255,255,255,0.9)">for the modern campus commuter.</span></h2>
+    <p class="lead">Smart shared-rides, rentable EV two-wheelers and campus charging infrastructure — all designed to make campus life quieter and cleaner. Choose your ride type below and explore available brands with instant details.</p>
+    <div class="controls">
+      <button class="cta explore" onclick="document.getElementById('commute-features').scrollIntoView({behavior:'smooth'})">Explore rides</button>
+      <button class="cta" id="howItWorksBtn">How it works</button>
+      <!-- How it Works Modal -->
+      <div id="howItWorksModal" class="modal-backdrop"><div class="modal how-modal">
+        <span class="close" id="closeHowItWorks">&times;</span>
+        <h2>How It Works 🚲⚡</h2>
+        <ol>
+          <li><strong>Choose your ride:</strong> Select a scooter, bike, or cycle from the app.</li>
+          <li><strong>Reserve instantly:</strong> Book your slot and unlock with one tap.</li>
+          <li><strong>Commute smart:</strong> Ride across campus with zero emissions.</li>
+          <li><strong>Return easily:</strong> Drop it off at any campus hub.</li>
+        </ol>
+      </div></div>
+    </div>
+  </div>
+</section>
+
+<!-- Zero Emissions section -->
+<section class="section" id="commute-features">
+  <h3>Zero Emissions — Campus fleets</h3>
+  <div class="columns">
+    <div class="info-card">
+      <p class="small">Reduce parking stress, emissions and noise. Our campus-first EV plan places reservable scooters/bikes and smart charging hubs around central locations.</p>
+      <ul style="margin:12px 0 0 18px">
+        <li>Dockless & docked options</li>
+        <li>Real-time availability map (coming soon)</li>
+        <li>Student & staff discounted plans</li>
+      </ul>
+    </div>
+    <div class="info-card">
+      <p class="small"><strong>Quick pick:</strong> Use the selector below to choose Scooter / Bike / Cycle and view 4 popular brands for each. Click any brand to see details like price, range and offers.</p>
+    </div>
+  </div>
+  <!-- Ride type selector -->
+  <div style="margin-top:22px">
+    <div class="ride-types" role="tablist" aria-label="Ride types">
+      <button class="active" data-type="scooter" onclick="selectRideType('scooter')">Scooter</button>
+      <button data-type="bike" onclick="selectRideType('bike')">Bike</button>
+      <button data-type="cycle" onclick="selectRideType('cycle')">Cycle</button>
+    </div>
+    <div class="brand-panel" id="brandPanel" aria-live="polite">
+      <div class="brand-grid" id="brandGrid"></div>
+      <div class="brand-details" id="brandDetails">
+        <div class="big-img"><img id="brandBigImg" src="" alt="brand image"></div>
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <div id="brandName" style="font-weight:900;font-size:18px"></div>
+            <div class="small" id="brandTag"></div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-weight:900;font-size:18px" id="brandPrice"></div>
+            <div class="small">Est. on-road</div>
+          </div>
+        </div>
+        <div class="specs" id="brandSpecs"></div>
+        <div style="display:flex;gap:8px;margin-top:6px">
+          <button class="btn primary" onclick="bookDemo()">Reserve demo</button>
+          <button class="btn" onclick="viewMore()">View brochure</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Smart Charging Stations -->
+<section class="section">
+  <h3>Smart Charging Stations</h3>
+  <div class="columns">
+    <div class="info-card">
+      <p class="small">Campus smart chargers allocate power efficiently and schedule charging during low-tariff hours. Map integration and student credits make charging frictionless.</p>
+    </div>
+    <div class="info-card">
+      <p class="small">Need to integrate a new charger? Add one to the map and we’ll pair it with nearby parking spots and reservation slots.</p>
+    </div>
+  </div>
+</section>
+
+<div style="max-width:1200px;margin:18px auto;padding:18px;color:rgba(255,255,255,0.6);text-align:center">
+  <small>Demo page — designs inspired by modern, image-driven landing pages. No data stored. Images come from Wikimedia Commons.</small>
+</div>
+
+<!-- Login / Signup Modal -->
+<div class="modal-backdrop" id="modalBackdrop" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="modal" id="modalBox" role="document">
+    <h4 id="modalTitle">Login</h4>
+    <form id="modalForm" onsubmit="return false;">
+      <div class="field"><label class="small">Email</label> <input type="email" id="modalEmail" required placeholder="you@campus.edu"></div>
+      <div class="field" id="signupOnlyName" style="display:none;"><label class="small">Full Name</label><input type="text" id="modalName" placeholder="Your full name"></div>
+      <div class="field" id="signupOnlyCollege" style="display:none;"><label class="small">College</label><select id="modalCollege" required><option value="">Select College</option><option value="TSEC">Thadomal Shahani Engineering College</option></select></div>
+      <div class="field" id="signupOnlyYear" style="display:none;"><label class="small">Year of Study</label><select id="modalYear" required><option value="">Select Year</option><option value="FE">FE</option><option value="SE">SE</option><option value="TE">TE</option><option value="BE">BE</option></select></div>
+      <div class="field" id="signupOnlyBranch" style="display:none;"><label class="small">Branch</label><select id="modalBranch" required><option value="">Select Branch</option><option value="AI-DS">AI-DS</option><option value="Computer">Computer</option><option value="IT">IT</option><option value="EXTC">EXTC</option><option value="Chemical">Chemical</option></select></div>
+      <div class="field" id="signupOnlyID" style="display:none;"><label class="small">Student ID</label><input type="text" id="modalStudentId" placeholder="e.g. TSEC2025XXXX"></div>
+      <div class="field"><label class="small">Password</label><input type="password" id="modalPassword" required placeholder="••••••••"></div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:6px">
+        <button class="btn" type="button" onclick="closeModal()">Cancel</button>
+        <button class="btn primary" id="modalSubmit">Login</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="toast" id="toast">Success</div>
+
+<footer class="ev-footer">
+  <div class="ev-footer-content">
+    <div class="footer-section">
+      <h4>About</h4>
+      <p>EV Campus Commute — making campus travel clean, quiet & smart.</p>
+      <p>Join our student community for exclusive EV ride deals & updates.</p>
+    </div>
+    <div class="footer-section">
+      <h4>Explore</h4>
+      <ul><li><a href="#">Vehicles</a></li><li><a href="#">Charging Hubs</a></li><li><a href="#">Plans</a></li><li><a href="#">Brochure</a></li></ul>
+    </div>
+    <div class="footer-section">
+      <h4>Support</h4>
+      <ul>
+        <li><a href="#">Help Center</a></li>
+        <li><a href="#">FAQ</a></li>
+        <a href="#" id="contactLink">Contact Us</a>
+        <li><a href="#">Campus Map Access</a></li>
+      </ul>
+    </div>
+    <div class="footer-section">
+      <h4>Connect With Us</h4>
+      <ul class="socials"><li><a href="#">Instagram</a></li><li><a href="#">LinkedIn</a></li><li><a href="#">Facebook</a></li></ul>
+      <p class="copyright">© 2025 EV Campus Commute</p>
+    </div>
+  </div>
+</footer>
+
+<!-- Contact Us Modal -->
+<div id="contactModal" class="contact-modal-backdrop">
+  <div class="contact-modal">
+    <span class="close" id="closeContact">&times;</span>
+    <h2>Meet Our Team 👨‍💻👨‍💻</h2>
+    <ul>
+      <li><strong>Ayush Kushwaha</strong> — +91 86898 29288
+        <p>A pragmatic coder who balances experiments with real-world builds. Loves turning campus problems into sleek web solutions.</p>
+      </li>
+      <li><strong>Atharva Gokhale</strong> — +91 99878 84447
+        <p>A curious mind with a knack for optimization. Always the one suggesting smarter algorithms over brute force.</p>
+      </li>
+      <li><strong>Utsav Golani</strong> — +91 77180 43582
+        <p>The creative spark of the group — blends design sense with engineering logic. Known for making UIs that actually feel fun.</p>
+      </li>
+      <li><strong>Arav Palod</strong> — +91 96991 21807
+        <p>The steady strategist. Keeps the team grounded, ensures deadlines are met, and sneaks in clever debugging tricks.</p>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<!-- The rest of your code remains unchanged up to the script section -->
+
+<script>
+const placeholder = "https://upload.wikimedia.org/wikipedia/commons/e/ea/Yulu_Cycle.jpg";
+const data = {
+  scooter: [
+    {id:"s1",name:"Ola S1 Pro",img:"https://upload.wikimedia.org/wikipedia/commons/7/7a/OLA_S1_Pro_Gen_1_Electric_Scooter.jpg",price:"₹ 1,49,000",range:"180 km (city estimate)",topSpeed:"115 km/h",offer:"Campus discount: ₹5,000 off + free campus charger credit"},
+    {id:"s2",name:"TVS iQube",img:"https://upload.wikimedia.org/wikipedia/commons/8/83/Tvs_i_qube.jpg",price:"₹ 1,15,000",range:"120 km",topSpeed:"90 km/h",offer:"0% EMI for 6 months (campus bundle)"},
+    {id:"s3",name:"Bajaj Chetak (Electric)",img:"https://upload.wikimedia.org/wikipedia/commons/c/c6/Bajaj_Chetak.jpg",price:"₹ 1,10,000",range:"100 km",topSpeed:"85 km/h",offer:"Free first-year service for students"},
+    {id:"s4",name:"Ather 450X",img:placeholder,price:"₹ 1,47,000",range:"146 km",topSpeed:"90 km/h",offer:"Campus package: 2 years warranty extension"}
+  ],
+  bike: [
+    {id:"b1",name:"Revolt RV400",img:placeholder,price:"₹ 1,42,900",range:"150 km (claimed)",topSpeed:"85 km/h",offer:"Book campus test ride — refundable token ₹99"},
+    {id:"b2",name:"Ultraviolette F77",img:placeholder,price:"₹ 2,99,000",range:"300+ km (WLTP est.)",topSpeed:"155 km/h",offer:"Premium campus demo available"},
+    {id:"b3",name:"Tork Kratos",img:placeholder,price:"₹ 1,50,000",range:"130 km",topSpeed:"105 km/h",offer:"Campus maintenance discount 12%"},
+    {id:"b4",name:"Ola S1 X (sport)",img:placeholder,price:"₹ 1,65,000",range:"160 km",topSpeed:"120 km/h",offer:"Free safety gear for students"}
+  ],
+  cycle: [
+    {id:"c1",name:"Yulu Miracle",img:"https://upload.wikimedia.org/wikipedia/commons/e/ea/Yulu_Cycle.jpg",price:"₹ 12,999",range:"40 km (pedal assist)",topSpeed:"25 km/h",offer:"Special monthly passes for students"},
+    {id:"c2",name:"Hero Lectro",img:placeholder,price:"₹ 19,999",range:"50 km",topSpeed:"25 km/h",offer:"Free campus delivery"},
+    {id:"c3",name:"Fiido D4",img:placeholder,price:"₹ 29,999",range:"60 km",topSpeed:"30 km/h",offer:"10% off for faculty"},
+    {id:"c4",name:"Ampere e-Cycle",img:placeholder,price:"₹ 11,499",range:"35 km",topSpeed:"25 km/h",offer:"Bundle charger & lock with discount"}
+  ]
+};
+
+let activeType = "scooter", activeBrandId = data.scooter[0].id;
+function capitalize(s){ return s[0].toUpperCase()+s.slice(1); }
+function selectRideType(type){
+  activeType = type;
+  document.querySelectorAll('.ride-types button').forEach(b=>b.classList.remove('active'));
+  document.querySelector(`.ride-types button[data-type="${type}"]`).classList.add('active');
+  renderBrandGrid();
+  activeBrandId = data[type][0].id; renderBrandDetails(activeBrandId);
+  document.getElementById('brandPanel').scrollIntoView({behavior:'smooth',block:'center'});
+}
+function renderBrandGrid(){
+  const grid = document.getElementById('brandGrid'); grid.innerHTML = "";
+  (data[activeType]||[]).forEach(brand=>{
+    let c = document.createElement('div');
+    c.className = 'brand-card'; c.innerHTML = `<img src="${brand.img}" alt="${brand.name}"><div><div class="meta">${brand.name}</div><div style="font-size:12px;color:rgba(255,255,255,0.65)">${brand.price}</div></div>`;
+    c.onclick=()=>{activeBrandId=brand.id;renderBrandDetails(brand.id);}; grid.appendChild(c);
+  });
+}
+function renderBrandDetails(id){
+  const all = [].concat(...Object.values(data));
+  const b = all.find(x=>x.id===id) || data[activeType][0];
+  document.getElementById('brandBigImg').src = b.img;
+  document.getElementById('brandName').textContent = b.name;
+  document.getElementById('brandTag').textContent = `${capitalize(activeType)} • Popular`;
+  document.getElementById('brandPrice').textContent = b.price;
+  const specs = document.getElementById('brandSpecs'); specs.innerHTML = "";
+  [{k:'Range',v:b.range||'—'},{k:'Top speed',v:b.topSpeed||'—'},{k:'Offer',v:b.offer||'—'}].forEach(s=>{let el=document.createElement('div');el.className='spec';el.textContent = `${s.k}: ${s.v}`;specs.appendChild(el);});
+}
+renderBrandGrid(); renderBrandDetails(activeBrandId);
+
+// LOGIN / SIGNUP
+const modalBackdrop = document.getElementById('modalBackdrop'), modalTitle = document.getElementById('modalTitle'),
+modalSubmit = document.getElementById('modalSubmit'), modalForm = document.getElementById('modalForm');
+document.getElementById('btnLogin').onclick=()=>openModal('login');
+document.getElementById('btnSignup').onclick=()=>openModal('signup');
+document.getElementById('exploreQuick').onclick=()=>selectRideType('scooter');
+function openModal(mode){
+  modalBackdrop.style.display='flex';modalBackdrop.setAttribute('aria-hidden','false');
+  const isSignup=mode==='signup';
+  modalTitle.textContent=isSignup?'Create account':'Login';
+  modalSubmit.textContent=isSignup?'Sign up':'Login';
+  ['Name','College','Year','Branch','ID'].forEach(f=>document.getElementById('signupOnly'+f).style.display=isSignup?'block':'none');
+  modalSubmit.onclick=()=>handleModalSubmit(mode);
+}
+
+function closeModal(){modalBackdrop.style.display='none';modalBackdrop.setAttribute('aria-hidden','true');modalForm.reset();}
+function handleModalSubmit(mode){
+  const email=document.getElementById('modalEmail').value.trim(),pass=document.getElementById('modalPassword').value.trim();
+  if(!email || !pass){showToast('Please enter email and password',{error:true});return;}
+  showToast(mode==='login'?'Logged in successfully — welcome back!':'Account created successfully — welcome!'); 
+  const name = document.getElementById("modalName").value || document.getElementById("modalEmail").value;
+
+  // Update profile bar
+  document.getElementById("profileName").textContent = `Welcome, ${name}`;
+  document.getElementById("profileSticky").style.display = "flex";
+
+  // Close modal
+  closeModal();
+}
+modalBackdrop.onclick=e=>{if(e.target===modalBackdrop)
+closeModal();};
+function showToast(text){
+  const t=document.getElementById('toast'); t.textContent=text;t.style.display='block';setTimeout(()=>t.style.opacity=1,20);
+  clearTimeout(t._h); t._h = setTimeout(()=>{t.style.opacity=0;setTimeout(()=>t.style.display='none',220)},2600);
+}
+window.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
+function bookDemo(){
+  showToast("Demo reserved — we will email you the details!");
+  // Open demo form or redirect (optional)
+  // window.open("demo-form.html", "_blank");
+}
+function viewMore(){
+  showToast("Opening brochure — demo only (no backend)");
+  // Open brochure (optional)
+  // window.open("brochure.pdf", "_blank");
+}
+
+// How it Works Modal
+const howBtn=document.getElementById("howItWorksBtn"),howModal=document.getElementById("howItWorksModal"),closeHow=document.getElementById("closeHowItWorks");
+howBtn.onclick=()=>{howModal.style.display="flex";}; closeHow.onclick=()=>{howModal.style.display="none";};
+window.onclick=e=>{if(e.target===howModal)howModal.style.display="none";if(e.target===contactModal)contactModal.style.display="none";};
+
+// Contact Modal
+const contactLink=document.getElementById("contactLink"),contactModal=document.getElementById("contactModal"),closeContact=document.getElementById("closeContact");
+contactLink.onclick=e=>{e.preventDefault();contactModal.style.display="flex";}; closeContact.onclick=()=>{contactModal.style.display="none";};
+
+</script>
+</body>
+</html>
