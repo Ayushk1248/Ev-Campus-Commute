@@ -1,0 +1,387 @@
+const placeholder = "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/Generic_EV_scooter_icon.svg/512px-Generic_EV_scooter_icon.svg.png";
+
+const data = {
+  scooter: [
+    {id:"s1",name:"Ola S1 Pro",img:"https://upload.wikimedia.org/wikipedia/commons/7/7a/OLA_S1_Pro_Gen_1_Electric_Scooter.jpg",price:"₹ 1,49,000",range:"180 km (city estimate)",topSpeed:"115 km/h",offer:"Campus discount: ₹5,000 off + free campus charger credit"},
+    {id:"s2",name:"TVS iQube",img:"https://upload.wikimedia.org/wikipedia/commons/8/83/Tvs_i_qube.jpg",price:"₹ 1,15,000",range:"120 km",topSpeed:"90 km/h",offer:"0% EMI for 6 months (campus bundle)"},
+    {id:"s3",name:"Bajaj Chetak (Electric)",img:"https://upload.wikimedia.org/wikipedia/commons/c/c6/Bajaj_Chetak.jpg",price:"₹ 1,10,000",range:"100 km",topSpeed:"85 km/h",offer:"Free first-year service for students"},
+    {id:"s4",name:"Ather 450X",img:"https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Frank-e%2C_Frankfurt_am_Main_%28LRM_20210417_155159%29.jpg/640px-Frank-e%2C_Frankfurt_am_Main_%28LRM_20210417_155159%29.jpg",price:"₹ 1,47,000",range:"146 km",topSpeed:"90 km/h",offer:"Campus package: 2 years warranty extension"}
+  ],
+  bike: [
+    {id:"b1",name:"Revolt RV400",img:"https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/ZEV_Electric_T-5100_Electric_Motorcycle.jpg/640px-ZEV_Electric_T-5100_Electric_Motorcycle.jpg",price:"₹ 1,42,900",range:"150 km (claimed)",topSpeed:"85 km/h",offer:"Book campus test ride — refundable token ₹99"},
+    {id:"b2",name:"Ultraviolette F77",img:"https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/%27Elmoto%27_E-Lifestyle_Bikes_%286359217335%29.jpg/640px-%27Elmoto%27_E-Lifestyle_Bikes_%286359217335%29.jpg",price:"₹ 2,99,000",range:"300+ km (WLTP est.)",topSpeed:"155 km/h",offer:"Premium campus demo available"},
+    {id:"b3",name:"Tork Kratos",img:"https://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/Norton_Motorcycle.jpg/640px-Norton_Motorcycle.jpg",price:"₹ 1,50,000",range:"130 km",topSpeed:"105 km/h",offer:"Campus maintenance discount 12%"},
+    {id:"b4",name:"Ola S1 X (sport)",img:"https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Royal_Enfield_INT_650_motorcycle.jpg/640px-Royal_Enfield_INT_650_motorcycle.jpg",price:"₹ 1,65,000",range:"160 km",topSpeed:"120 km/h",offer:"Free safety gear for students"}
+  ],
+  cycle: [
+    {id:"c1",name:"Yulu Miracle",img:"https://upload.wikimedia.org/wikipedia/commons/e/ea/Yulu_Cycle.jpg",price:"₹ 12,999",range:"40 km (pedal assist)",topSpeed:"25 km/h",offer:"Special monthly passes for students"},
+    {id:"c2",name:"Hero Lectro",img:"https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/HWE_Klapprad_02.jpg/640px-HWE_Klapprad_02.jpg",price:"₹ 19,999",range:"50 km",topSpeed:"25 km/h",offer:"Free campus delivery"},
+    {id:"c3",name:"Fiido D4",img:"https://upload.wikimedia.org/wikipedia/commons/thumb/a/ad/Lime_bicycle_electric_motor_cycle_Broadwater_Farm_Estate_Tottenham_03.jpg/640px-Lime_bicycle_electric_motor_cycle_Broadwater_Farm_Estate_Tottenham_03.jpg",price:"₹ 29,999",range:"60 km",topSpeed:"30 km/h",offer:"10% off for faculty"},
+    {id:"c4",name:"Ampere e-Cycle",img:"https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/Rental_electric_bicycles_from_Znojmo_at_Regiontour_2010.jpg/640px-Rental_electric_bicycles_from_Znojmo_at_Regiontour_2010.jpg",price:"₹ 11,499",range:"35 km",topSpeed:"25 km/h",offer:"Bundle charger & lock with discount"}
+  ]
+};
+let activeType = "scooter", activeBrandId = data.scooter[0].id;
+let isLoggedIn = false;
+let loggedInUserName = '';
+
+// Chatbot state variables
+let isChatbotExpanded = false;
+let chatContext = 'initial';
+
+// --- Core Data/Render Functions ---
+function capitalize(s){ return s[0].toUpperCase()+s.slice(1); }
+function selectRideType(type){
+  activeType = type;
+  document.querySelectorAll('.ride-types button').forEach(b=>b.classList.remove('active'));
+  document.querySelector(`.ride-types button[data-type="${type}"]`).classList.add('active');
+  renderBrandGrid();
+  activeBrandId = data[type][0].id; renderBrandDetails(activeBrandId);
+  document.getElementById('brandPanel').scrollIntoView({behavior:'smooth',block:'center'});
+}
+function renderBrandGrid(){
+  const grid = document.getElementById('brandGrid'); grid.innerHTML = "";
+  (data[activeType]||[]).forEach(brand=>{
+    let c = document.createElement('div');
+    c.className = 'brand-card'; c.innerHTML = `<img src="${brand.img}" alt="${brand.name}"><div><div class="meta">${brand.name}</div><div style="font-size:12px;color:rgba(255,255,255,0.65)">${brand.price}</div></div>`;
+    c.onclick=()=>{activeBrandId=brand.id;renderBrandDetails(brand.id);}; grid.appendChild(c);
+  });
+}
+function renderBrandDetails(id){
+  const all = [].concat(...Object.values(data));
+  const b = all.find(x=>x.id===id) || data[activeType][0];
+  document.getElementById('brandBigImg').src = b.img;
+  document.getElementById('brandName').textContent = b.name;
+  document.getElementById('brandTag').textContent = `${capitalize(activeType)} • Popular`;
+  document.getElementById('brandPrice').textContent = b.price;
+  const specs = document.getElementById('brandSpecs'); specs.innerHTML = "";
+  [{k:'Range',v:b.range||'—'},{k:'Top speed',v:b.topSpeed||'—'},{k:'Offer',v:b.offer||'—'}].forEach(s=>{let el=document.createElement('div');el.className='spec';el.textContent = `${s.k}: ${s.v}`;specs.appendChild(el);});
+}
+
+// --- Modals & Toast ---
+const modalBackdrop = document.getElementById('modalBackdrop'), modalTitle = document.getElementById('modalTitle'),
+modalSubmit = document.getElementById('modalSubmit'), modalForm = document.getElementById('modalForm');
+
+const chatbotIcon = document.getElementById('chatbotIcon');
+const chatbotWindow = document.getElementById('chatbotWindow');
+const chatMessages = document.getElementById('chatMessages');
+const closeChatbotBtn = document.getElementById('closeChatbot');
+
+function openModal(mode){
+  modalBackdrop.style.display='flex';modalBackdrop.setAttribute('aria-hidden','false');
+  const isSignup=mode==='signup';
+  modalTitle.textContent=isSignup?'Create account':'Login';
+  modalSubmit.textContent=isSignup?'Sign up':'Login';
+  ['Name','College','Year','Branch','ID'].forEach(f=>document.getElementById('signupOnly'+f).style.display=isSignup?'block':'none');
+  modalSubmit.onclick=()=>handleModalSubmit(mode);
+}
+
+function closeModal(){modalBackdrop.style.display='none';modalBackdrop.setAttribute('aria-hidden','true');modalForm.reset();}
+
+function handleModalSubmit(mode){
+  const email=document.getElementById('modalEmail').value.trim();
+  const pass=document.getElementById('modalPassword').value.trim();
+  
+  if(!email || !pass){showToast('Please enter email and password',{error:true});return;}
+  
+  // Set login status
+  isLoggedIn = true;
+  loggedInUserName = document.getElementById("modalName").value || email.split('@')[0];
+  
+  showToast(mode==='login'?'Logged in successfully — welcome back!':'Account created successfully — welcome!'); 
+  
+  // Update profile bar
+  document.getElementById("profileName").textContent = `Welcome, ${loggedInUserName}`;
+  document.getElementById("profileSticky").style.display = "flex";
+  
+  // Hide login/signup buttons
+  document.getElementById("btnLogin").style.display = 'none';
+  document.getElementById("btnSignup").style.display = 'none';
+  
+  // Update chatbot icon state
+  updateChatbotIconState();
+  
+  closeModal();
+}
+
+modalBackdrop.onclick=e=>{if(e.target===modalBackdrop)
+closeModal();};
+
+function showToast(text){
+  const t=document.getElementById('toast'); t.textContent=text;t.style.display='block';setTimeout(()=>t.style.opacity=1,20);
+  clearTimeout(t._h); t._h = setTimeout(()=>{t.style.opacity=0;setTimeout(()=>t.style.display='none',220)},2600);
+}
+
+window.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
+
+function bookDemo(){showToast('Demo reserved — we will email you the details!');}
+function viewMore(){showToast('Opening brochure — demo only (no backend)');}
+
+// How it Works Modal
+const howBtn=document.getElementById("howItWorksBtn"),howModal=document.getElementById("howItWorksModal"),closeHow=document.getElementById("closeHowItWorks");
+howBtn.onclick=()=>{howModal.style.display="flex";}; closeHow.onclick=()=>{howModal.style.display="none";};
+window.onclick=e=>{if(e.target===howModal)howModal.style.display="none";}; 
+
+// --- Chatbot Logic ---
+
+// Update chatbot icon appearance based on login status
+function updateChatbotIconState() {
+    if (isLoggedIn) {
+        chatbotIcon.textContent = 'Chatbot';
+        chatbotIcon.classList.remove('logged-out');
+    } else {
+        chatbotIcon.textContent = 'Login to Chat';
+        chatbotIcon.classList.add('logged-out');
+    }
+}
+
+// Function to append messages to the chat interface
+function appendMessage(sender, text, options = []) {
+    const msgDiv = document.createElement('div');
+    msgDiv.classList.add('chat-message', sender);
+    if (sender === 'bot' && chatContext === 'initial' && loggedInUserName) {
+        text = text.replace('Hello there!', `Hello ${loggedInUserName}!`);
+    }
+    msgDiv.innerHTML = text;
+    chatMessages.appendChild(msgDiv);
+
+    if (options.length > 0) {
+        const optionsDiv = document.createElement('div');
+        optionsDiv.classList.add('chat-options');
+        options.forEach(option => {
+            const btn = document.createElement('button');
+            btn.classList.add('chat-option-btn');
+            btn.textContent = option;
+            btn.onclick = () => handleChatInput(option);
+            optionsDiv.appendChild(btn);
+        });
+        chatMessages.appendChild(optionsDiv);
+    }
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+// Function to handle chatbot window visibility
+function toggleChatbotWindow() {
+    if (!isLoggedIn) {
+        showToast('Please log in to use the chatbot!');
+        openModal('login');
+        return;
+    }
+
+    isChatbotExpanded = !isChatbotExpanded;
+    if (isChatbotExpanded) {
+        chatbotWindow.classList.add('expanded');
+        if (chatMessages.children.length === 0) {
+            sendBotResponse('initial');
+        }
+    } else {
+        chatbotWindow.classList.remove('expanded');
+    }
+}
+
+// Chatbot conversation flow
+const chatbotResponses = {
+    initial: {
+        text: `Hello there! I'm your EV Campus Commute assistant. How can I help you today?`,
+        options: ['Choose a ride', 'Book a ride', 'Ask about offers', 'Restart'],
+        nextState: 'mainMenu',
+        default: {
+            text: "I'm here to help—choose one of the buttons below to get started!",
+            options: ['Choose a ride', 'Book a ride', 'Ask about offers', 'Restart'],
+            nextState: 'mainMenu'
+        }
+    },
+    mainMenu: {
+        'choose a ride': {
+            text: 'Great! Which type of EV are you interested in?',
+            options: ['Scooter', 'Bike', 'Cycle', 'Back to Main Menu'],
+            nextState: 'selectRideType'
+        },
+        'book a ride': {
+            text: 'Booking a ride is easy! You can view availability on our map (coming soon) or explore ride types and reserve a demo. Would you like to check out available rides first?',
+            options: ['Yes, show me rides', 'No, tell me more about booking', 'Back to Main Menu'],
+            nextState: 'bookingInfo'
+        },
+        'ask about offers': {
+            text: 'We have exciting offers! Currently, we have student discounts, 0% EMI plans, and free first-year service for specific models. Would you like to check specific ride offers?',
+            options: ['Yes, show me ride offers', 'Back to Main Menu'],
+            nextState: 'offersInfo'
+        },
+        'restart': {
+            text: 'All set! Let’s start fresh—what would you like to do?',
+            options: ['Choose a ride', 'Book a ride', 'Ask about offers', 'Restart'],
+            nextState: 'mainMenu'
+        },
+        'back to main menu': {
+            text: 'You’re already at the main menu. Pick any option below to continue.',
+            options: ['Choose a ride', 'Book a ride', 'Ask about offers', 'Restart'],
+            nextState: 'mainMenu'
+        },
+        default: {
+            text: "I'm not sure I understood that. Please choose one of the options or tap Restart to begin again.",
+            options: ['Choose a ride', 'Book a ride', 'Ask about offers', 'Restart'],
+            nextState: 'mainMenu'
+        }
+    },
+    selectRideType: {
+        'scooter': {
+            text: 'Excellent choice! Our scooters like the Ola S1 Pro and Ather 450X offer great range and speed. You can see full details on the main page.',
+            action: () => selectRideType('scooter'),
+            options: ['Show me another type', 'Back to Main Menu'],
+            nextState: 'selectRideType'
+        },
+        'bike': {
+            text: 'Electric bikes like the Revolt RV400 and Ultraviolette F77 are perfect for longer commutes. Check them out on the main page for specs!',
+            action: () => selectRideType('bike'),
+            options: ['Show me another type', 'Back to Main Menu'],
+            nextState: 'selectRideType'
+        },
+        'cycle': {
+            text: 'Our electric cycles, like Yulu Miracle, are super convenient for short hops and come with great student passes. See them on the main page!',
+            action: () => selectRideType('cycle'),
+            options: ['Show me another type', 'Back to Main Menu'],
+            nextState: 'selectRideType'
+        },
+        'show me another type': {
+            text: 'No problem! Which type of EV would you like to explore?',
+            options: ['Scooter', 'Bike', 'Cycle', 'Back to Main Menu'],
+            nextState: 'selectRideType'
+        },
+        'back to main menu': {
+            text: 'Heading back to the main menu for you.',
+            options: ['Choose a ride', 'Book a ride', 'Ask about offers', 'Restart'],
+            nextState: 'mainMenu'
+        },
+        default: {
+            text: "Please select one of the ride types or head back to the main menu.",
+            options: ['Scooter', 'Bike', 'Cycle', 'Back to Main Menu'],
+            nextState: 'selectRideType'
+        }
+    },
+    bookingInfo: {
+        'yes, show me rides': {
+            text: 'Perfect! I’ll highlight the ride selection section for you on the main page. You can click on any vehicle to see details and then use the "Reserve demo" button.',
+            action: () => document.getElementById('commute-features').scrollIntoView({behavior:'smooth'}),
+            options: ['Back to Main Menu'],
+            nextState: 'bookingInfo'
+        },
+        'no, tell me more about booking': {
+            text: 'Sure! Once you pick a ride, you’ll typically book via our app (coming soon). You can reserve a demo online directly from the vehicle details. Would you like to try reserving a demo now?',
+            options: ['Reserve a demo', 'Back to Main Menu'],
+            nextState: 'bookingFinal'
+        },
+        'back to main menu': {
+            text: 'Going back to the main menu.',
+            options: ['Choose a ride', 'Book a ride', 'Ask about offers', 'Restart'],
+            nextState: 'mainMenu'
+        },
+        default: {
+            text: "Could you clarify? Choose one of the options, please.",
+            options: ['Yes, show me rides', 'No, tell me more about booking', 'Back to Main Menu'],
+            nextState: 'bookingInfo'
+        }
+    },
+    bookingFinal: {
+        'reserve a demo': {
+            text: 'Alright, a demo has been reserved! We will send you an email with the details shortly. Head to the ride section to pick a specific vehicle.',
+            action: () => {bookDemo(); document.getElementById('commute-features').scrollIntoView({behavior:'smooth'});},
+            options: ['Back to Main Menu'],
+            nextState: 'bookingFinal'
+        },
+        'back to main menu': {
+            text: 'Returning to the main options.',
+            options: ['Choose a ride', 'Book a ride', 'Ask about offers', 'Restart'],
+            nextState: 'mainMenu'
+        },
+        default: {
+            text: "Please choose an action.",
+            options: ['Reserve a demo', 'Back to Main Menu'],
+            nextState: 'bookingFinal'
+        }
+    },
+    offersInfo: {
+        'yes, show me ride offers': {
+            text: 'Alright, I’ve navigated you to the ride section. Click on any scooter, bike, or cycle card to see its campus offer in the details panel!',
+            action: () => document.getElementById('commute-features').scrollIntoView({behavior:'smooth'}),
+            options: ['Back to Main Menu'],
+            nextState: 'offersInfo'
+        },
+        'back to main menu': {
+            text: 'Going back to the main menu to help with other queries.',
+            options: ['Choose a ride', 'Book a ride', 'Ask about offers', 'Restart'],
+            nextState: 'mainMenu'
+        },
+        default: {
+            text: "To see specific offers, you’ll need to look at the vehicles. Shall I take you there?",
+            options: ['Yes, show me ride offers', 'Back to Main Menu'],
+            nextState: 'offersInfo'
+        }
+    }
+};
+
+// Function to process user input and respond
+function sendBotResponse(input) {
+    if (input === 'initial') {
+        chatContext = 'initial';
+        const response = chatbotResponses.initial;
+        appendMessage('bot', response.text, response.options || []);
+        chatContext = response.nextState || chatContext;
+        return;
+    }
+
+    const normalizedInput = input.toLowerCase().trim();
+    const currentContext = chatbotResponses[chatContext] || chatbotResponses.mainMenu;
+    const optionKeys = Object.keys(currentContext).filter(key => key !== 'default');
+
+    let handler = currentContext[normalizedInput];
+
+    if (!handler) {
+        const fuzzyMatch = optionKeys.find(key => key.includes(normalizedInput) || normalizedInput.includes(key));
+        handler = fuzzyMatch ? currentContext[fuzzyMatch] : null;
+    }
+
+    if (!handler && currentContext.default) {
+        handler = currentContext.default;
+    }
+
+    if (!handler) {
+        return;
+    }
+
+    if (handler.action && typeof handler.action === 'function') {
+        handler.action();
+    }
+
+    appendMessage('bot', handler.text, handler.options || []);
+
+    if (handler.nextState) {
+        chatContext = handler.nextState;
+    }
+}
+
+// Function to handle user's typed message or selected option
+function handleChatInput(messageText) {
+    if (!isLoggedIn) {
+        showToast('Please log in to use the chatbot!');
+        openModal('login');
+        return;
+    }
+    if (!messageText.trim()) return;
+
+    appendMessage('user', messageText);
+    sendBotResponse(messageText);
+}
+
+// Event listeners and Initialization Logic
+document.addEventListener('DOMContentLoaded', () => {
+    renderBrandGrid(); 
+    renderBrandDetails(activeBrandId);
+    
+    updateChatbotIconState();
+
+    document.getElementById('btnLogin').onclick=()=>openModal('login');
+    document.getElementById('btnSignup').onclick=()=>openModal('signup');
+    document.getElementById('exploreQuick').onclick=()=>selectRideType('scooter');
+    
+    if (chatbotIcon) chatbotIcon.addEventListener('click', toggleChatbotWindow);
+    if (closeChatbotBtn) closeChatbotBtn.addEventListener('click', toggleChatbotWindow);
+}); 
