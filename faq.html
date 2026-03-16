@@ -4,32 +4,297 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>EV Campus Commute - FAQ</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700;900&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css" />
+  <style>
+    /* Inline CSS for the FAQ page additions */
+    :root {
+      --bg-dark: #071022; --accent: #00d1ff; --accent-2: #00ffa6;
+      --glass: rgba(255,255,255,0.06); --card: rgba(255,255,255,0.04);
+      --muted: rgba(255,255,255,0.7);
+    }
+
+    /* Main Content Styling */
+    .faq-page-main {
+        max-width: 900px;
+        margin: 120px auto 60px; /* Space for fixed nav */
+        padding: 0 20px;
+    }
+
+    .faq-page-main h2 {
+        font-size: 38px;
+        color: var(--accent);
+        font-family: 'Poppins';
+        text-align: center;
+        margin-bottom: 40px;
+        text-shadow: 0 0 15px rgba(0, 209, 255, 0.4);
+    }
+
+    /* Home Button Style - Creative UI */
+    .home-link-box {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+
+    .home-link-box a {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 20px;
+        border-radius: 25px;
+        font-weight: 700;
+        text-decoration: none;
+        background: linear-gradient(90deg, var(--accent), var(--accent-2));
+        color: #042232; /* Dark text on bright gradient */
+        box-shadow: 0 4px 15px rgba(0, 209, 255, 0.3);
+        transition: all 0.2s ease;
+    }
+
+    .home-link-box a:hover {
+        transform: translateY(-2px) scale(1.02);
+        box-shadow: 0 6px 20px rgba(0, 255, 166, 0.5);
+    }
+    
+    .home-link-box a svg {
+        fill: #042232;
+        width: 18px;
+        height: 18px;
+    }
+
+    /* FAQ Accordion Styling */
+    .faq-item {
+        margin-bottom: 12px;
+        border-radius: 10px;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        background-color: var(--card);
+    }
+
+    .faq-question {
+        background: rgba(0, 209, 255, 0.05);
+        padding: 18px 20px;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-weight: 600;
+        font-size: 16px;
+        color: #eaffff;
+        transition: background 0.2s ease;
+    }
+
+    .faq-question:hover {
+        background: rgba(0, 209, 255, 0.1);
+    }
+
+    .faq-question.active {
+        color: var(--accent);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .faq-answer {
+        padding: 0 20px;
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease-out, padding 0.3s ease-out;
+        color: var(--muted);
+        line-height: 1.6;
+    }
+
+    .faq-answer.open {
+        max-height: 500px; /* Arbitrarily large value */
+        padding: 15px 20px 20px;
+    }
+
+    .faq-toggle-icon {
+        font-size: 20px;
+        font-weight: bold;
+        transition: transform 0.3s ease;
+        line-height: 1;
+    }
+
+    .faq-question.active .faq-toggle-icon {
+        transform: rotate(45deg); /* Change '+' to 'x' or similar */
+        color: var(--accent-2);
+    }
+
+    /* General Styling from Main Page for Nav/Footer */
+    .nav {
+        position: fixed; top: 0; left: 0; right: 0; height: 72px; display: flex;
+        align-items: center; justify-content: space-between; padding: 0 28px;
+        backdrop-filter: blur(8px);
+        background: linear-gradient(90deg,rgba(7,16,34,0.45),rgba(7,16,34,0.18));
+        z-index: 40; border-bottom: 1px solid rgba(255,255,255,0.03);
+    }
+
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .logo {
+        width: 44px; height: 44px; border-radius: 8px;
+        background: linear-gradient(135deg, var(--accent), var(--accent-2));
+        display: flex; align-items: center; justify-content: center;
+        font-weight: 900; color: #042232; font-family: 'Poppins';
+        box-shadow: 0 6px 18px rgba(0,0,0,0.5);
+    }
+    .brand h1 { font-size: 18px; margin: 0; letter-spacing: 0.2px }
+
+    .ev-footer {
+        background: #071022; color: #eaf6ff; padding: 40px 20px;
+        border-top: 1px solid rgba(255,255,255,0.05); font-size: 14px;
+    }
+    .ev-footer-content { max-width: 1100px; margin: auto; display: flex; flex-wrap: wrap; gap: 30px; justify-content: space-between; }
+    .ev-footer .footer-section { flex: 1 1 200px; min-width: 180px; }
+    .ev-footer h4 { margin-bottom: 12px; font-family: 'Poppins', sans-serif; font-weight: 700; color: var(--accent); }
+    .ev-footer a { color: #eaf6ff; text-decoration: none; transition: color 0.2s; }
+    .ev-footer a:hover { color: var(--accent-2); }
+    .ev-footer ul { list-style: none; padding: 0; margin: 0; }
+    .ev-footer ul li { margin-bottom: 8px; }
+    .ev-footer .copyright { margin-top: 20px; font-size: 12px; color: rgba(234,246,255,0.6); }
+
+  </style>
 </head>
 <body>
-  <header>
-    <h1>EV Campus Commute</h1>
-    <nav>
-      <a href="index.html">Home</a>
-      <a href="vehicles.html">Vehicles</a>
-      <a href="contact.html">Contact</a>
-    </nav>
-  </header>
+  <nav class="nav">
+    <div class="brand">
+        <div class="logo"><img src="CampEV.jpeg" alt="CampEV Logo" id="navbar-logo"></div>
+        <div>
+            <h1>CampEV</h1>
+            <div style="font-size:12px;color:rgba(234,246,255,0.6)">Clean • Quiet • Smart</div>
+        </div>
+    </div>
+    <div class="actions">
+      <a href="EV Campus Commute.html" class="home-link-box-nav">
+          <button class="btn primary" id="btnHomeNav">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h3v2h-5V7z"/></svg>
+              Go to Home
+          </button>
+      </a>
+    </div>
+  </nav>
 
-  <main>
+  <main class="faq-page-main">
     <h2>Frequently Asked Questions</h2>
-    <h3>1. How do I sign up?</h3>
-    <p>Click on “Sign up” in the header and follow the steps.</p>
 
-    <h3>2. Can I use this on my phone?</h3>
-    <p>Yes! Our website is fully responsive and works on all devices.</p>
+    <div class="home-link-box">
+        <a href="EV Campus Commute.html">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+            Back to Campus Hub
+        </a>
+    </div>
 
-    <h3>3. How much do the vehicles cost?</h3>
-    <p>Prices are available on each vehicle page. Student discounts are also available.</p>
+    <div class="faq-item">
+      <div class="faq-question" id="q1">
+        1. How do I sign up for the EV Commute service?
+        <span class="faq-toggle-icon">+</span>
+      </div>
+      <div class="faq-answer" id="a1">
+        <p>Signing up is quick! Click on the <strong>"Sign up" button</strong> in the header of the main page and follow the simple steps. You'll need your campus email and student ID for verification to unlock student pricing.</p>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question" id="q2">
+        2. Can I use the service and website on my mobile device?
+        <span class="faq-toggle-icon">+</span>
+      </div>
+      <div class="faq-answer" id="a2">
+        <p>Absolutely! Our website is fully **responsive** and works seamlessly on all devices, including your phone and tablet. Our dedicated **mobile app** (coming soon) will provide an even smoother experience for real-time bookings and charger location.</p>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question" id="q3">
+        3. Where can I find the prices and available student discounts for the vehicles?
+        <span class="faq-toggle-icon">+</span>
+      </div>
+      <div class="faq-answer" id="a3">
+        <p>Prices and full vehicle specifications are listed on the main page under the **"Zero Emissions - Campus fleets"** section. Scroll down, choose a vehicle type (Scooter, Bike, or Cycle), and click on a brand. You will see the estimated on-road price and any **student-exclusive offers** (like 0% EMI or service credits) in the details panel.</p>
+      </div>
+    </div>
+    
+    <div class="faq-item">
+      <div class="faq-question" id="q4">
+        4. What kind of electric vehicles are available for campus commute?
+        <span class="faq-toggle-icon">+</span>
+      </div>
+      <div class="faq-answer" id="a4">
+        <p>We offer three main categories: <strong>Scooters</strong> (e.g., Ola S1 Pro, Ather 450X), <strong>Bikes</strong> (e.g., Revolt RV400, Ultraviolette F77), and <strong>Cycles</strong> (e.g., Yulu Miracle). Each is suitable for different commute needs and ranges.</p>
+      </div>
+    </div>
+    
+    <div class="faq-item">
+      <div class="faq-question" id="q5">
+        5. How do the Smart Charging Stations work?
+        <span class="faq-toggle-icon">+</span>
+      </div>
+      <div class="faq-answer" id="a5">
+        <p>Our smart chargers efficiently allocate power, often scheduling charging during low-tariff hours to save costs. You can use our **map integration** (coming soon) to find available spots and use your **student credits** for frictionless charging.</p>
+      </div>
+    </div>
+
   </main>
 
-  <footer>
-    <p>&copy; 2025 EV Campus Commute. All rights reserved.</p>
+  <footer class="ev-footer">
+    <div class="ev-footer-content">
+      <div class="footer-section">
+        <h4>About</h4>
+        <p>EV Campus Commute — making campus travel clean, quiet & smart.</p>
+        <p>Join our student community for exclusive EV ride deals & updates.</p>
+      </div>
+      <div class="footer-section">
+        <h4>Explore</h4>
+        <ul>
+          <li><a href="vehicles.html">Vehicles</a></li>
+          <li><a href="charging.html">Charging Hubs</a></li>
+          <li><a href="plans.html">Plans</a></li>
+          <li><a href="brochure.html">Brochure</a></li>
+        </ul>
+      </div>
+      <div class="footer-section">
+        <h4>Support</h4>
+        <ul>
+          <li><a href="help.html">Help Center</a></li>
+          <li><a href="faq.html">FAQ</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="campus-map.html">Campus Map Access</a></li>
+        </ul>
+      </div>
+      <div class="footer-section">
+        <h4>Connect With Us</h4>
+        <ul class="socials">
+          <li><a href="#">Instagram</a></li>
+          <li><a href="#">LinkedIn</a></li>
+          <li><a href="#">Facebook</a></li>
+        </ul>
+        <p class="copyright">© 2025 EV Campus Commute</p>
+      </div>
+    </div>
   </footer>
+
+  <script>
+    // JavaScript for the simple FAQ accordion
+    document.addEventListener('DOMContentLoaded', function() {
+      const questions = document.querySelectorAll('.faq-question');
+
+      questions.forEach(question => {
+        question.addEventListener('click', () => {
+          // Get the ID of the corresponding answer
+          const answerId = question.id.replace('q', 'a');
+          const answer = document.getElementById(answerId);
+
+          // Close all other open answers
+          questions.forEach(q => {
+            if (q !== question && q.classList.contains('active')) {
+              q.classList.remove('active');
+              document.getElementById(q.id.replace('q', 'a')).classList.remove('open');
+            }
+          });
+
+          // Toggle the clicked answer
+          question.classList.toggle('active');
+          answer.classList.toggle('open');
+        });
+      });
+    });
+  </script>
 </body>
 </html>
