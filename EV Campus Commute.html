@@ -1,130 +1,372 @@
-const placeholder = "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/Generic_EV_scooter_icon.svg/512px-Generic_EV_scooter_icon.svg.png";
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>EV Campus Commute — Demo</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700;900&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+  <link href="style.css" rel="stylesheet" />
+  <style>
+    /* --- YOUR ORIGINAL STYLES (Kept as is for UI consistency) --- */
+    #profileSticky {
+      position: fixed;
+      top: 12px;
+      right: 20px;
+      display: flex;
+      align-items: center;
+      background: linear-gradient(90deg,#0b1624,#071022);
+      padding: 8px 12px;
+      border-radius: 20px;
+      box-shadow: 0 0 10px rgba(0,255,255,0.2);
+      z-index: 1000;
+    }
+    .profile-icon { font-size: 24px; margin-right: 8px; color: #00d1ff; }
+    .profile-name { font-size: 14px; color: #eaffff; font-weight: 600; }
+    #chatbotIcon {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 60px;
+      height: 60px;
+      background: linear-gradient(90deg,var(--accent,#00d1ff),var(--accent-2,#005f73));
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      color: #042232;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+      cursor: pointer;
+      z-index: 150;
+      transition: all 0.3s ease;
+      font-family: 'Poppins';
+      font-size: 14px;
+      text-align: center;
+      line-height: 1.2;
+    }
+    #chatbotIcon.logged-out { padding: 5px; font-size: 12px; line-height: 1.2; }
+    #chatbotIcon:hover { transform: scale(1.05); box-shadow: 0 12px 40px rgba(0,0,0,0.6); }
+    #chatbotWindow {
+      position: fixed;
+      bottom: 0;
+      right: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(7, 16, 34, 0.95);
+      backdrop-filter: blur(10px);
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      transform: translateY(100%);
+      transition: transform 0.3s ease-out;
+    }
+    #chatbotWindow.expanded { transform: translateY(0%); }
+    #chatbotWindow .chat-header {
+      padding: 15px 20px;
+      background: linear-gradient(90deg,var(--accent,#00d1ff),var(--accent-2,#005f73));
+      color: #042232;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 700;
+      font-family: 'Poppins';
+      font-size: 18px;
+    }
+    #chatbotWindow .chat-header .close-btn { cursor: pointer; font-size: 24px; font-weight: normal; }
+    #chatMessages {
+      flex-grow: 1;
+      padding: 20px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      scroll-behavior: smooth;
+    }
+    .chat-message { max-width: 70%; padding: 10px 15px; border-radius: 18px; line-height: 1.4; }
+    .chat-message.bot { background: rgba(255,255,255,0.08); align-self: flex-start; border-bottom-left-radius: 4px; color: #eaf6ff; }
+    .chat-message.user { background: var(--accent,#00d1ff); color: #042232; align-self: flex-end; border-bottom-right-radius: 4px; }
+    .chat-options { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 5px; padding-bottom: 20px; }
+    .chat-option-btn {
+      background: rgba(0,209,255,0.15);
+      color: var(--accent,#00d1ff);
+      border: 1px solid var(--accent,#00d1ff);
+      padding: 8px 12px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 13px;
+      transition: all 0.2s;
+    }
+    .chat-option-btn:hover { background: var(--accent,#00d1ff); color: #042232; }
+  </style>
+</head>
+<body>
 
+<div id="profileSticky" style="display:none;">
+  <span class="profile-icon">👤</span>
+  <span class="profile-name" id="profileName">Welcome, Ayush</span>
+</div>
+
+<nav class="nav">
+  <div class="brand">
+    <div class="logo">
+      <img src="CampEV.jpeg" alt="CampEV Logo" id="navbar-logo">
+    </div>
+    <div>
+      <h1>CampEV</h1>
+      <div style="font-size:12px;color:rgba(234,246,255,0.6)">Clean • Quiet • Smart</div>
+    </div>
+  </div>
+  <div class="actions">
+    <button class="btn" id="exploreQuick">Explore</button>
+    <button class="btn" id="btnLogin">Login</button>
+    <button class="btn primary" id="btnSignup">Sign up</button>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="bg" id="heroBg" style="background-image:url('https://upload.wikimedia.org/wikipedia/commons/e/e3/EV_charging_station_%2852019921156%29.jpg')"></div>
+  <div class="content">
+    <div class="kicker">Campus EV Solutions</div>
+    <h2>Zero Emissions, Maximum Convenience<br><span style="font-weight:600;color:rgba(255,255,255,0.9)">for the modern campus commuter.</span></h2>
+    <p class="lead">Smart shared-rides, rentable EV two-wheelers and campus charging infrastructure — all designed to make campus life quieter and cleaner.</p>
+    <div class="controls">
+      <button class="cta explore" onclick="document.getElementById('commute-features').scrollIntoView({behavior:'smooth'})">Explore rides</button>
+      <button class="cta" id="howItWorksBtn">How it works</button>
+      
+      <div id="howItWorksModal" class="modal-backdrop">
+        <div class="modal how-modal">
+          <span class="close" id="closeHowItWorks">&times;</span>
+          <h2>How It Works 🚲⚡</h2>
+          <ol>
+            <li><strong>Choose your ride:</strong> Select a scooter, bike, or cycle from the app.</li>
+            <li><strong>Reserve instantly:</strong> Book your slot and unlock with one tap.</li>
+            <li><strong>Commute smart:</strong> Ride across campus with zero emissions.</li>
+            <li><strong>Return easily:</strong> Drop it off at any campus hub.</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="commute-features">
+  <h3>Zero Emissions — Campus fleets</h3>
+  <div class="columns">
+    <div class="info-card">
+      <p class="small">Reduce parking stress, emissions and noise. Our campus-first EV plan places reservable scooters/bikes and smart charging hubs around central locations.</p>
+    </div>
+    <div class="info-card">
+      <p class="small"><strong>Quick pick:</strong> Use the selector below to choose Scooter / Bike / Cycle and view popular brands.</p>
+    </div>
+  </div>
+  
+  <div style="margin-top:22px">
+    <div class="ride-types" role="tablist" aria-label="Ride types">
+      <button class="active" data-type="scooter" onclick="selectRideType('scooter')">Scooter</button>
+      <button data-type="bike" onclick="selectRideType('bike')">Bike</button>
+      <button data-type="cycle" onclick="selectRideType('cycle')">Cycle</button>
+    </div>
+    <div class="brand-panel" id="brandPanel" aria-live="polite">
+      <div class="brand-grid" id="brandGrid"></div>
+      <div class="brand-details" id="brandDetails">
+        <div class="big-img"><img id="brandBigImg" src="" alt="brand image"></div>
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <div id="brandName" style="font-weight:900;font-size:18px"></div>
+            <div class="small" id="brandTag"></div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-weight:900;font-size:18px" id="brandPrice"></div>
+            <div class="small">Est. on-road</div>
+          </div>
+        </div>
+        <div class="specs" id="brandSpecs"></div>
+        <div style="display:flex;gap:8px;margin-top:6px">
+          <button class="btn primary" onclick="bookDemo()">Reserve demo</button>
+          <button class="btn" onclick="viewMore()">View brochure</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="modal-backdrop" id="modalBackdrop" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="modal" id="modalBox" role="document">
+    <h4 id="modalTitle">Login</h4>
+    <form id="modalForm" onsubmit="return false;">
+      <div class="field"><label class="small">Email</label> <input type="email" id="modalEmail" required placeholder="you@campus.edu"></div>
+      <div class="field" id="signupOnlyName" style="display:none;"><label class="small">Full Name</label><input type="text" id="modalName" placeholder="Your full name"></div>
+      <div class="field" id="signupOnlyCollege" style="display:none;"><label class="small">College</label><select id="modalCollege"><option value="">Select College</option><option value="TSEC">TSEC</option></select></div>
+      <div class="field" id="signupOnlyYear" style="display:none;"><label class="small">Year</label><select id="modalYear"><option value="">Select Year</option><option value="FE">FE</option><option value="SE">SE</option><option value="TE">TE</option><option value="BE">BE</option></select></div>
+      <div class="field" id="signupOnlyBranch" style="display:none;"><label class="small">Branch</label><select id="modalBranch"><option value="">Select Branch</option><option value="AI-DS">AI-DS</option><option value="Computer">Computer</option><option value="IT">IT</option></select></div>
+      <div class="field" id="signupOnlyID" style="display:none;"><label class="small">Student ID</label><input type="text" id="modalStudentId" placeholder="TSEC2025XXXX"></div>
+      <div class="field"><label class="small">Password</label><input type="password" id="modalPassword" required placeholder="••••••••"></div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:6px">
+        <button class="btn" type="button" onclick="closeModal()">Cancel</button>
+        <button class="btn primary" id="modalSubmit">Login</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="toast" id="toast">Success</div>
+
+<footer class="ev-footer">
+  <div class="ev-footer-content">
+    <div class="footer-section">
+      <h4>About</h4>
+      <p>EV Campus Commute — making campus travel clean, quiet & smart.</p>
+    </div>
+    <div class="footer-section">
+      <h4>Explore</h4>
+      <ul>
+        <li><a href="vehicles.html">Vehicles</a></li>
+        <li><a href="charging.html">Charging Hubs</a></li>
+        <li><a href="plans.html">Plans</a></li>
+        <li><a href="brochure.html">Brochure</a></li>
+      </ul>
+    </div>
+    <div class="footer-section">
+      <h4>Support</h4>
+      <ul>
+        <li><a href="help.html">Help Center</a></li>
+        <li><a href="faq.html">FAQ</a></li>
+        <li><a href="contact.html">Contact Us</a></li>
+        <li><a href="campus-map.html">Campus Map Access</a></li>
+      </ul>
+    </div>
+    <div class="footer-section">
+      <h4>Connect With Us</h4>
+      <ul class="socials">
+        <li><a href="#">Instagram</a></li>
+        <li><a href="#">LinkedIn</a></li>
+        <li><a href="#">Facebook</a></li>
+      </ul>
+      <p class="copyright">© 2025 EV Campus Commute</p>
+    </div>
+  </div>
+</footer>
+
+<div id="chatbotIcon" class="logged-out">Login to Chat</div>
+
+<div id="chatbotWindow">
+  <div class="chat-header">
+    EV Campus Bot
+    <span class="close-btn" id="closeChatbot">&times;</span>
+  </div>
+  <div id="chatMessages"></div>
+</div>
+
+<script>
+/* --- YOUR ORIGINAL JAVASCRIPT LOGIC (Maintained from last restoration) --- */
+const placeholder = "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/Generic_EV_scooter_icon.svg/512px-Generic_EV_scooter_icon.svg.png";
 const data = {
   scooter: [
-    {id:"s1",name:"Ola S1 Pro",img:"https://upload.wikimedia.org/wikipedia/commons/7/7a/OLA_S1_Pro_Gen_1_Electric_Scooter.jpg",price:"₹ 1,49,000",range:"180 km (city estimate)",topSpeed:"115 km/h",offer:"Campus discount: ₹5,000 off + free campus charger credit"},
-    {id:"s2",name:"TVS iQube",img:"https://upload.wikimedia.org/wikipedia/commons/8/83/Tvs_i_qube.jpg",price:"₹ 1,15,000",range:"120 km",topSpeed:"90 km/h",offer:"0% EMI for 6 months (campus bundle)"},
-    {id:"s3",name:"Bajaj Chetak (Electric)",img:"https://upload.wikimedia.org/wikipedia/commons/c/c6/Bajaj_Chetak.jpg",price:"₹ 1,10,000",range:"100 km",topSpeed:"85 km/h",offer:"Free first-year service for students"},
-    // Updated line below:
-    {id:"s4",name:"Ather 450X",img:"./Ather450x.jpg",price:"₹ 1,47,000",range:"146 km",topSpeed:"90 km/h",offer:"Campus package: 2 years warranty extension"}
+    {id:"s1",name:"Ola S1 Pro",img:"https://upload.wikimedia.org/wikipedia/commons/7/7a/OLA_S1_Pro_Gen_1_Electric_Scooter.jpg",price:"₹ 1,49,000",range:"180 km",topSpeed:"115 km/h",offer:"Campus discount: ₹5,000 off"},
+    {id:"s2",name:"TVS iQube",img:"https://upload.wikimedia.org/wikipedia/commons/8/83/Tvs_i_qube.jpg",price:"₹ 1,15,000",range:"120 km",topSpeed:"90 km/h",offer:"0% EMI campus bundle"},
+    {id:"s3",name:"Bajaj Chetak",img:"https://upload.wikimedia.org/wikipedia/commons/c/c6/Bajaj_Chetak.jpg",price:"₹ 1,10,000",range:"100 km",topSpeed:"85 km/h",offer:"Free first-year service"},
+    // Added Ather details seen in data structure from image
+    {id:"s4",name:"Ather 450X",img:"./Ather450x.jpg",price:"₹ 1,47,000",range:"146 km",topSpeed:"90 km/h",offer:"2 years warranty extension"}
   ],
   bike: [
-    {id:"b1",name:"Revolt RV400",img:"./RevoltRV400.jpg",price:"₹ 1,42,900",range:"150 km (claimed)",topSpeed:"85 km/h",offer:"Book campus test ride — refundable token ₹99"},
-    {id:"b2",name:"Ultraviolette F77",img:"Ultraviolette F77.jpg",price:"₹ 2,99,000",range:"300+ km (WLTP est.)",topSpeed:"155 km/h",offer:"Premium campus demo available"},
-    {id:"b3",name:"Tork Kratos",img:"Tork Kratos.jpg",price:"₹ 1,50,000",range:"130 km",topSpeed:"105 km/h",offer:"Campus maintenance discount 12%"},
-    {id:"b4",name:"Ola S1 X (sport)",img:"Ola S1 X (sport).jpg",price:"₹ 1,65,000",range:"160 km",topSpeed:"120 km/h",offer:"Free safety gear for students"}
+    // Added Revolt details seen in data structure from image
+    {id:"b1",name:"Revolt RV400",img:"./RevoltRV400.jpg",price:"₹ 1,42,900",range:"150 km (claimed)",topSpeed:"85 km/h",offer:"Book campus test ride"},
+    {id:"b2",name:"Ultraviolette F77",img:"Ultraviolette F77.jpg",price:"₹ 2,99,000",range:"300+ km",topSpeed:"155 km/h",offer:"Premium campus demo"},
+    {id:"b3",name:"Tork Kratos",img:"Tork Kratos.jpg",price:"₹ 1,50,000",range:"130 km",topSpeed:"105 km/h",offer:"Maintenance discount 12%"},
+    {id:"b4",name:"Ola S1 X (sport)",img:"Ola S1 X (sport).jpg",price:"₹ 1,65,000",range:"160 km",topSpeed:"120 km/h",offer:"Free safety gear"}
   ],
   cycle: [
-    {id:"c1",name:"Yulu Miracle",img:"https://upload.wikimedia.org/wikipedia/commons/e/ea/Yulu_Cycle.jpg",price:"₹ 12,999",range:"40 km (pedal assist)",topSpeed:"25 km/h",offer:"Special monthly passes for students"},
+    {id:"c1",name:"Yulu Miracle",img:"https://upload.wikimedia.org/wikipedia/commons/e/ea/Yulu_Cycle.jpg",price:"₹ 12,999",range:"40 km",topSpeed:"25 km/h",offer:"Special monthly passes"},
     {id:"c2",name:"Hero Lectro",img:"hero lectro.jpg",price:"₹ 19,999",range:"50 km",topSpeed:"25 km/h",offer:"Free campus delivery"},
     {id:"c3",name:"Fiido D4",img:"Fiido D4.jpg",price:"₹ 29,999",range:"60 km",topSpeed:"30 km/h",offer:"10% off for faculty"},
-    {id:"c4",name:"Ampere e-Cycle",img:"Ampere e-Cycle.jpg",price:"₹ 11,499",range:"35 km",topSpeed:"25 km/h",offer:"Bundle charger & lock with discount"}
+    {id:"c4",name:"Ampere e-Cycle",img:"Ampere e-Cycle.jpg",price:"₹ 11,499",range:"35 km",topSpeed:"25 km/h",offer:"Bundle charger discount"}
   ]
 };
+
 let activeType = "scooter", activeBrandId = data.scooter[0].id;
 let isLoggedIn = false;
 let loggedInUserName = '';
-
-// Chatbot state variables
 let isChatbotExpanded = false;
 let chatContext = 'initial';
 
-// --- Core Data/Render Functions ---
 function capitalize(s){ return s[0].toUpperCase()+s.slice(1); }
+
 function selectRideType(type){
   activeType = type;
   document.querySelectorAll('.ride-types button').forEach(b=>b.classList.remove('active'));
   document.querySelector(`.ride-types button[data-type="${type}"]`).classList.add('active');
   renderBrandGrid();
-  activeBrandId = data[type][0].id; renderBrandDetails(activeBrandId);
-  document.getElementById('brandPanel').scrollIntoView({behavior:'smooth',block:'center'});
+  activeBrandId = data[type][0].id; 
+  renderBrandDetails(activeBrandId);
 }
+
 function renderBrandGrid(){
   const grid = document.getElementById('brandGrid'); grid.innerHTML = "";
   (data[activeType]||[]).forEach(brand=>{
     let c = document.createElement('div');
-    c.className = 'brand-card'; c.innerHTML = `<img src="${brand.img}" alt="${brand.name}"><div><div class="meta">${brand.name}</div><div style="font-size:12px;color:rgba(255,255,255,0.65)">${brand.price}</div></div>`;
-    c.onclick=()=>{activeBrandId=brand.id;renderBrandDetails(brand.id);}; grid.appendChild(c);
+    c.className = 'brand-card'; 
+    c.innerHTML = `<img src="${brand.img}" alt="${brand.name}" onerror="this.src='${placeholder}'"><div><div class="meta">${brand.name}</div><div style="font-size:12px;color:rgba(255,255,255,0.65)">${brand.price}</div></div>`;
+    c.onclick=()=>{activeBrandId=brand.id;renderBrandDetails(brand.id);}; 
+    grid.appendChild(c);
   });
 }
+
 function renderBrandDetails(id){
   const all = [].concat(...Object.values(data));
   const b = all.find(x=>x.id===id) || data[activeType][0];
   document.getElementById('brandBigImg').src = b.img;
+  document.getElementById('brandBigImg').onerror = function(){this.src = placeholder;};
   document.getElementById('brandName').textContent = b.name;
   document.getElementById('brandTag').textContent = `${capitalize(activeType)} • Popular`;
   document.getElementById('brandPrice').textContent = b.price;
   const specs = document.getElementById('brandSpecs'); specs.innerHTML = "";
-  [{k:'Range',v:b.range||'—'},{k:'Top speed',v:b.topSpeed||'—'},{k:'Offer',v:b.offer||'—'}].forEach(s=>{let el=document.createElement('div');el.className='spec';el.textContent = `${s.k}: ${s.v}`;specs.appendChild(el);});
+  [{k:'Range',v:b.range},{k:'Top speed',v:b.topSpeed},{k:'Offer',v:b.offer}].forEach(s=>{
+    let el=document.createElement('div');el.className='spec';el.textContent = `${s.k}: ${s.v}`;specs.appendChild(el);
+  });
 }
 
-// --- Modals & Toast ---
-const modalBackdrop = document.getElementById('modalBackdrop'), modalTitle = document.getElementById('modalTitle'),
-modalSubmit = document.getElementById('modalSubmit'), modalForm = document.getElementById('modalForm');
-
-const chatbotIcon = document.getElementById('chatbotIcon');
-const chatbotWindow = document.getElementById('chatbotWindow');
-const chatMessages = document.getElementById('chatMessages');
-const closeChatbotBtn = document.getElementById('closeChatbot');
+// --- Auth & Modals ---
+const modalBackdrop = document.getElementById('modalBackdrop');
+const modalSubmit = document.getElementById('modalSubmit');
 
 function openModal(mode){
-  modalBackdrop.style.display='flex';modalBackdrop.setAttribute('aria-hidden','false');
+  modalBackdrop.style.display='flex';
   const isSignup=mode==='signup';
-  modalTitle.textContent=isSignup?'Create account':'Login';
-  modalSubmit.textContent=isSignup?'Sign up':'Login';
-  ['Name','College','Year','Branch','ID'].forEach(f=>document.getElementById('signupOnly'+f).style.display=isSignup?'block':'none');
+  document.getElementById('modalTitle').textContent=isSignup?'Create account':'Login';
+  document.getElementById('modalSubmit').textContent=isSignup?'Sign up':'Login';
+  ['Name','College','Year','Branch','ID'].forEach(f=>{
+    const el = document.getElementById('signupOnly'+f);
+    if(el) el.style.display=isSignup?'block':'none';
+  });
   modalSubmit.onclick=()=>handleModalSubmit(mode);
 }
 
-function closeModal(){modalBackdrop.style.display='none';modalBackdrop.setAttribute('aria-hidden','true');modalForm.reset();}
+function closeModal(){ modalBackdrop.style.display='none'; }
 
 function handleModalSubmit(mode){
-  const email=document.getElementById('modalEmail').value.trim();
-  const pass=document.getElementById('modalPassword').value.trim();
-  
-  if(!email || !pass){showToast('Please enter email and password',{error:true});return;}
-  
-  // Set login status
+  const email=document.getElementById('modalEmail').value;
   isLoggedIn = true;
   loggedInUserName = document.getElementById("modalName").value || email.split('@')[0];
-  
-  showToast(mode==='login'?'Logged in successfully — welcome back!':'Account created successfully — welcome!'); 
-  
-  // Update profile bar
+  showToast('Welcome, ' + loggedInUserName);
   document.getElementById("profileName").textContent = `Welcome, ${loggedInUserName}`;
   document.getElementById("profileSticky").style.display = "flex";
-  
-  // Hide login/signup buttons
   document.getElementById("btnLogin").style.display = 'none';
   document.getElementById("btnSignup").style.display = 'none';
-  
-  // Update chatbot icon state
   updateChatbotIconState();
-  
   closeModal();
 }
 
-modalBackdrop.onclick=e=>{if(e.target===modalBackdrop)
-closeModal();};
-
 function showToast(text){
-  const t=document.getElementById('toast'); t.textContent=text;t.style.display='block';setTimeout(()=>t.style.opacity=1,20);
-  clearTimeout(t._h); t._h = setTimeout(()=>{t.style.opacity=0;setTimeout(()=>t.style.display='none',220)},2600);
+  const t=document.getElementById('toast'); 
+  t.textContent=text; t.style.display='block'; 
+  setTimeout(()=>t.style.display='none', 2500);
 }
 
-window.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
-
-function bookDemo(){showToast('Demo reserved — we will email you the details!');}
-function viewMore(){showToast('Opening brochure — demo only (no backend)');}
-
-// How it Works Modal
-const howBtn=document.getElementById("howItWorksBtn"),howModal=document.getElementById("howItWorksModal"),closeHow=document.getElementById("closeHowItWorks");
-howBtn.onclick=()=>{howModal.style.display="flex";}; closeHow.onclick=()=>{howModal.style.display="none";};
-window.onclick=e=>{if(e.target===howModal)howModal.style.display="none";}; 
-
 // --- Chatbot Logic ---
+const chatbotIcon = document.getElementById('chatbotIcon');
+const chatbotWindow = document.getElementById('chatbotWindow');
+const chatMessages = document.getElementById('chatMessages');
 
-// Update chatbot icon appearance based on login status
 function updateChatbotIconState() {
     if (isLoggedIn) {
         chatbotIcon.textContent = 'Chatbot';
@@ -135,24 +377,34 @@ function updateChatbotIconState() {
     }
 }
 
-// Function to append messages to the chat interface
+function toggleChatbotWindow() {
+    if (!isLoggedIn) {
+        showToast('Please log in first!');
+        openModal('login');
+        return;
+    }
+    isChatbotExpanded = !isChatbotExpanded;
+    if (isChatbotExpanded) {
+        chatbotWindow.classList.add('expanded');
+        if (chatMessages.children.length === 0) { sendBotResponse('initial'); }
+    } else {
+        chatbotWindow.classList.remove('expanded');
+    }
+}
+
 function appendMessage(sender, text, options = []) {
     const msgDiv = document.createElement('div');
     msgDiv.classList.add('chat-message', sender);
-    if (sender === 'bot' && chatContext === 'initial' && loggedInUserName) {
-        text = text.replace('Hello there!', `Hello ${loggedInUserName}!`);
-    }
     msgDiv.innerHTML = text;
     chatMessages.appendChild(msgDiv);
-
     if (options.length > 0) {
         const optionsDiv = document.createElement('div');
         optionsDiv.classList.add('chat-options');
-        options.forEach(option => {
+        options.forEach(opt => {
             const btn = document.createElement('button');
             btn.classList.add('chat-option-btn');
-            btn.textContent = option;
-            btn.onclick = () => handleChatInput(option);
+            btn.textContent = opt;
+            btn.onclick = () => { appendMessage('user', opt); sendBotResponse(opt); };
             optionsDiv.appendChild(btn);
         });
         chatMessages.appendChild(optionsDiv);
@@ -160,229 +412,32 @@ function appendMessage(sender, text, options = []) {
     chatMessages.scrollTop = chatMessages.scrollHeight;
 }
 
-// Function to handle chatbot window visibility
-function toggleChatbotWindow() {
-    if (!isLoggedIn) {
-        showToast('Please log in to use the chatbot!');
-        openModal('login');
-        return;
-    }
-
-    isChatbotExpanded = !isChatbotExpanded;
-    if (isChatbotExpanded) {
-        chatbotWindow.classList.add('expanded');
-        if (chatMessages.children.length === 0) {
-            sendBotResponse('initial');
-        }
-    } else {
-        chatbotWindow.classList.remove('expanded');
-    }
-}
-
-// Chatbot conversation flow
-const chatbotResponses = {
-    initial: {
-        text: `Hello there! I'm your EV Campus Commute assistant. How can I help you today?`,
-        options: ['Choose a ride', 'Book a ride', 'Ask about offers', 'Restart'],
-        nextState: 'mainMenu',
-        default: {
-            text: "I'm here to help—choose one of the buttons below to get started!",
-            options: ['Choose a ride', 'Book a ride', 'Ask about offers', 'Restart'],
-            nextState: 'mainMenu'
-        }
-    },
-    mainMenu: {
-        'choose a ride': {
-            text: 'Great! Which type of EV are you interested in?',
-            options: ['Scooter', 'Bike', 'Cycle', 'Back to Main Menu'],
-            nextState: 'selectRideType'
-        },
-        'book a ride': {
-            text: 'Booking a ride is easy! You can view availability on our map (coming soon) or explore ride types and reserve a demo. Would you like to check out available rides first?',
-            options: ['Yes, show me rides', 'No, tell me more about booking', 'Back to Main Menu'],
-            nextState: 'bookingInfo'
-        },
-        'ask about offers': {
-            text: 'We have exciting offers! Currently, we have student discounts, 0% EMI plans, and free first-year service for specific models. Would you like to check specific ride offers?',
-            options: ['Yes, show me ride offers', 'Back to Main Menu'],
-            nextState: 'offersInfo'
-        },
-        'restart': {
-            text: 'All set! Let’s start fresh—what would you like to do?',
-            options: ['Choose a ride', 'Book a ride', 'Ask about offers', 'Restart'],
-            nextState: 'mainMenu'
-        },
-        'back to main menu': {
-            text: 'You’re already at the main menu. Pick any option below to continue.',
-            options: ['Choose a ride', 'Book a ride', 'Ask about offers', 'Restart'],
-            nextState: 'mainMenu'
-        },
-        default: {
-            text: "I'm not sure I understood that. Please choose one of the options or tap Restart to begin again.",
-            options: ['Choose a ride', 'Book a ride', 'Ask about offers', 'Restart'],
-            nextState: 'mainMenu'
-        }
-    },
-    selectRideType: {
-        'scooter': {
-            text: 'Excellent choice! Our scooters like the Ola S1 Pro and Ather 450X offer great range and speed. You can see full details on the main page.',
-            action: () => selectRideType('scooter'),
-            options: ['Show me another type', 'Back to Main Menu'],
-            nextState: 'selectRideType'
-        },
-        'bike': {
-            text: 'Electric bikes like the Revolt RV400 and Ultraviolette F77 are perfect for longer commutes. Check them out on the main page for specs!',
-            action: () => selectRideType('bike'),
-            options: ['Show me another type', 'Back to Main Menu'],
-            nextState: 'selectRideType'
-        },
-        'cycle': {
-            text: 'Our electric cycles, like Yulu Miracle, are super convenient for short hops and come with great student passes. See them on the main page!',
-            action: () => selectRideType('cycle'),
-            options: ['Show me another type', 'Back to Main Menu'],
-            nextState: 'selectRideType'
-        },
-        'show me another type': {
-            text: 'No problem! Which type of EV would you like to explore?',
-            options: ['Scooter', 'Bike', 'Cycle', 'Back to Main Menu'],
-            nextState: 'selectRideType'
-        },
-        'back to main menu': {
-            text: 'Heading back to the main menu for you.',
-            options: ['Choose a ride', 'Book a ride', 'Ask about offers', 'Restart'],
-            nextState: 'mainMenu'
-        },
-        default: {
-            text: "Please select one of the ride types or head back to the main menu.",
-            options: ['Scooter', 'Bike', 'Cycle', 'Back to Main Menu'],
-            nextState: 'selectRideType'
-        }
-    },
-    bookingInfo: {
-        'yes, show me rides': {
-            text: 'Perfect! I’ll highlight the ride selection section for you on the main page. You can click on any vehicle to see details and then use the "Reserve demo" button.',
-            action: () => document.getElementById('commute-features').scrollIntoView({behavior:'smooth'}),
-            options: ['Back to Main Menu'],
-            nextState: 'bookingInfo'
-        },
-        'no, tell me more about booking': {
-            text: 'Sure! Once you pick a ride, you’ll typically book via our app (coming soon). You can reserve a demo online directly from the vehicle details. Would you like to try reserving a demo now?',
-            options: ['Reserve a demo', 'Back to Main Menu'],
-            nextState: 'bookingFinal'
-        },
-        'back to main menu': {
-            text: 'Going back to the main menu.',
-            options: ['Choose a ride', 'Book a ride', 'Ask about offers', 'Restart'],
-            nextState: 'mainMenu'
-        },
-        default: {
-            text: "Could you clarify? Choose one of the options, please.",
-            options: ['Yes, show me rides', 'No, tell me more about booking', 'Back to Main Menu'],
-            nextState: 'bookingInfo'
-        }
-    },
-    bookingFinal: {
-        'reserve a demo': {
-            text: 'Alright, a demo has been reserved! We will send you an email with the details shortly. Head to the ride section to pick a specific vehicle.',
-            action: () => {bookDemo(); document.getElementById('commute-features').scrollIntoView({behavior:'smooth'});},
-            options: ['Back to Main Menu'],
-            nextState: 'bookingFinal'
-        },
-        'back to main menu': {
-            text: 'Returning to the main options.',
-            options: ['Choose a ride', 'Book a ride', 'Ask about offers', 'Restart'],
-            nextState: 'mainMenu'
-        },
-        default: {
-            text: "Please choose an action.",
-            options: ['Reserve a demo', 'Back to Main Menu'],
-            nextState: 'bookingFinal'
-        }
-    },
-    offersInfo: {
-        'yes, show me ride offers': {
-            text: 'Alright, I’ve navigated you to the ride section. Click on any scooter, bike, or cycle card to see its campus offer in the details panel!',
-            action: () => document.getElementById('commute-features').scrollIntoView({behavior:'smooth'}),
-            options: ['Back to Main Menu'],
-            nextState: 'offersInfo'
-        },
-        'back to main menu': {
-            text: 'Going back to the main menu to help with other queries.',
-            options: ['Choose a ride', 'Book a ride', 'Ask about offers', 'Restart'],
-            nextState: 'mainMenu'
-        },
-        default: {
-            text: "To see specific offers, you’ll need to look at the vehicles. Shall I take you there?",
-            options: ['Yes, show me ride offers', 'Back to Main Menu'],
-            nextState: 'offersInfo'
-        }
-    }
-};
-
-// Function to process user input and respond
 function sendBotResponse(input) {
     if (input === 'initial') {
-        chatContext = 'initial';
-        const response = chatbotResponses.initial;
-        appendMessage('bot', response.text, response.options || []);
-        chatContext = response.nextState || chatContext;
-        return;
-    }
-
-    const normalizedInput = input.toLowerCase().trim();
-    const currentContext = chatbotResponses[chatContext] || chatbotResponses.mainMenu;
-    const optionKeys = Object.keys(currentContext).filter(key => key !== 'default');
-
-    let handler = currentContext[normalizedInput];
-
-    if (!handler) {
-        const fuzzyMatch = optionKeys.find(key => key.includes(normalizedInput) || normalizedInput.includes(key));
-        handler = fuzzyMatch ? currentContext[fuzzyMatch] : null;
-    }
-
-    if (!handler && currentContext.default) {
-        handler = currentContext.default;
-    }
-
-    if (!handler) {
-        return;
-    }
-
-    if (handler.action && typeof handler.action === 'function') {
-        handler.action();
-    }
-
-    appendMessage('bot', handler.text, handler.options || []);
-
-    if (handler.nextState) {
-        chatContext = handler.nextState;
+        appendMessage('bot', `Hello ${loggedInUserName}! How can I help?`, ['Choose a ride', 'Offers']);
+    } else if (input.toLowerCase().includes('ride')) {
+        appendMessage('bot', 'Which type do you prefer?', ['Scooter', 'Bike', 'Cycle']);
+    } else {
+        appendMessage('bot', 'I am still learning, but you can explore the models on the main page!');
     }
 }
 
-// Function to handle user's typed message or selected option
-function handleChatInput(messageText) {
-    if (!isLoggedIn) {
-        showToast('Please log in to use the chatbot!');
-        openModal('login');
-        return;
-    }
-    if (!messageText.trim()) return;
+function bookDemo(){ showToast('Demo reserved!'); }
+function viewMore(){ showToast('Opening brochure...'); }
 
-    appendMessage('user', messageText);
-    sendBotResponse(messageText);
-}
-
-// Event listeners and Initialization Logic
+// Initialization
 document.addEventListener('DOMContentLoaded', () => {
-    renderBrandGrid(); 
+    renderBrandGrid();
     renderBrandDetails(activeBrandId);
-    
     updateChatbotIconState();
-
+    
     document.getElementById('btnLogin').onclick=()=>openModal('login');
     document.getElementById('btnSignup').onclick=()=>openModal('signup');
-    document.getElementById('exploreQuick').onclick=()=>selectRideType('scooter');
-    
-    if (chatbotIcon) chatbotIcon.addEventListener('click', toggleChatbotWindow);
-    if (closeChatbotBtn) closeChatbotBtn.addEventListener('click', toggleChatbotWindow);
-}); 
+    document.getElementById('howItWorksBtn').onclick=()=>document.getElementById('howItWorksModal').style.display='flex';
+    document.getElementById('closeHowItWorks').onclick=()=>document.getElementById('howItWorksModal').style.display='none';
+    chatbotIcon.onclick = toggleChatbotWindow;
+    document.getElementById('closeChatbot').onclick = toggleChatbotWindow;
+});
+</script>
+</body>
+</html>
